@@ -1,29 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../constants/colors';
+import { ThemeColors, useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 import { radius, spacing } from '../constants/spacing';
 
 type Props = {
   label: string;
-  variant?: 'tech' | 'software' | 'default';
 };
-
-const VARIANT_STYLES = {
-  tech: { bg: colors.tagTechBg, text: colors.tagTechText },
-  software: { bg: colors.tagSoftwareBg, text: colors.tagSoftwareText },
-  default: { bg: colors.tagDefaultBg, text: colors.tagDefaultText },
-};
-
-function getVariant(tag: string): 'tech' | 'software' | 'default' {
-  const lower = tag.toLowerCase();
-  if (lower.includes('tech') || lower.includes('history') || lower.includes('science')) {
-    return 'tech';
-  }
-  if (lower.includes('soft') || lower.includes('code') || lower.includes('crime')) {
-    return 'software';
-  }
-  return 'default';
-}
 
 function formatTagLabel(tag: string): string {
   const map: Record<string, string> = {
@@ -41,9 +24,17 @@ function formatTagLabel(tag: string): string {
   return map[tag.toLowerCase()] ?? tag.charAt(0).toUpperCase() + tag.slice(1);
 }
 
-export function TagBadge({ label, variant }: Props) {
-  const resolvedVariant = variant ?? getVariant(label);
-  const palette = VARIANT_STYLES[resolvedVariant];
+function getVariantPalette(colors: ThemeColors) {
+  return {
+    bg: colors.filterInactiveBg,
+    text: colors.textPrimary,
+  };
+}
+
+export function TagBadge({ label }: Props) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
+  const palette = useMemo(() => getVariantPalette(colors), [colors]);
 
   return (
     <View style={[styles.badge, { backgroundColor: palette.bg }]}>
@@ -54,16 +45,17 @@ export function TagBadge({ label, variant }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  badge: {
-    paddingHorizontal: spacing.sm + 2,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.pill,
-    marginRight: spacing.xs,
-    marginBottom: spacing.xs,
-  },
-  text: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-});
+const createStyles = (_colors: ReturnType<typeof useTheme>['colors']) =>
+  StyleSheet.create({
+    badge: {
+      paddingHorizontal: spacing.sm + 2,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.pill,
+      marginRight: spacing.xs,
+      marginBottom: spacing.xs,
+    },
+    text: {
+      fontSize: 12,
+      fontWeight: '600',
+    },
+  });
