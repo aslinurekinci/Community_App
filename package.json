@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "name": "Community_App",
+=======
+  "name": "mobilSosyalMedya",
+>>>>>>> g2
   "version": "0.0.1",
   "private": true,
   "scripts": {
