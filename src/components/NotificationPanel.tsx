@@ -9,9 +9,10 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '../constants/colors';
-import { radius, spacing } from '../constants/spacing';
+import { ThemeColors } from '../context/ThemeContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
+import { radius, spacing } from '../constants/spacing';
 import { formatRelativeTime } from '../utils/formatDate';
 
 type Props = {
@@ -21,6 +22,7 @@ type Props = {
 
 export function NotificationPanel({ visible, onClose }: Props) {
   const insets = useSafeAreaInsets();
+  const styles = useThemedStyles(createStyles);
   const { notifications, markRead, markAllRead, clearAll } = useNotifications();
 
   return (
@@ -65,78 +67,79 @@ export function NotificationPanel({ visible, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-  },
-  panel: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    maxHeight: '70%',
-    backgroundColor: colors.card,
-    borderBottomLeftRadius: radius.lg,
-    borderBottomRightRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  close: {
-    fontSize: 15,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-  actionText: {
-    fontSize: 13,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  clearText: {
-    color: colors.notificationBadge,
-  },
-  list: {
-    paddingBottom: spacing.lg,
-  },
-  item: {
-    padding: spacing.md,
-    borderRadius: radius.md,
-    backgroundColor: colors.background,
-    marginBottom: spacing.sm,
-  },
-  itemUnread: {
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-  },
-  itemText: {
-    fontSize: 14,
-    color: colors.textPrimary,
-    fontWeight: '500',
-  },
-  itemTime: {
-    marginTop: spacing.xs,
-    fontSize: 12,
-    color: colors.textMuted,
-  },
-  empty: {
-    textAlign: 'center',
-    color: colors.textSecondary,
-    paddingVertical: spacing.xxl,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.35)',
+    },
+    panel: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      maxHeight: '70%',
+      backgroundColor: colors.card,
+      borderBottomLeftRadius: radius.lg,
+      borderBottomRightRadius: radius.lg,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.xl,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: colors.textPrimary,
+    },
+    close: {
+      fontSize: 15,
+      color: colors.textPrimary,
+      fontWeight: '600',
+    },
+    actions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: spacing.md,
+    },
+    actionText: {
+      fontSize: 13,
+      color: colors.textPrimary,
+      fontWeight: '600',
+    },
+    clearText: {
+      color: colors.notificationBadge,
+    },
+    list: {
+      paddingBottom: spacing.lg,
+    },
+    item: {
+      padding: spacing.md,
+      borderRadius: radius.md,
+      backgroundColor: colors.background,
+      marginBottom: spacing.sm,
+    },
+    itemUnread: {
+      borderLeftWidth: 3,
+      borderLeftColor: colors.textPrimary,
+    },
+    itemText: {
+      fontSize: 14,
+      color: colors.textPrimary,
+      fontWeight: '500',
+    },
+    itemTime: {
+      marginTop: spacing.xs,
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    empty: {
+      textAlign: 'center',
+      color: colors.textSecondary,
+      paddingVertical: spacing.xxl,
+    },
+  });
