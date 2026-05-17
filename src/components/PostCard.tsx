@@ -8,9 +8,10 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-import { colors } from '../constants/colors';
-import { radius, spacing } from '../constants/spacing';
+import { useTheme } from '../context/ThemeContext';
 import { usePosts } from '../context/PostContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
+import { radius, spacing } from '../constants/spacing';
 import { EnrichedPost } from '../types';
 import { formatCount } from '../utils/formatNumber';
 import { truncateText } from '../utils/truncateText';
@@ -24,6 +25,8 @@ type Props = {
 };
 
 export function PostCard({ post, onPress, showImage }: Props) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const {
     isLiked,
     isBookmarked,
@@ -71,13 +74,13 @@ export function PostCard({ post, onPress, showImage }: Props) {
           </View>
         </View>
         <TouchableOpacity
-          onPress={() => bookmarkPost(post.id)}
+          onPress={() => bookmarkPost(post.id, post)}
           hitSlop={12}
           accessibilityLabel="Yer imi">
           <Icon
             name="bookmark"
             size={20}
-            color={bookmarked ? colors.primary : colors.textMuted}
+            color={bookmarked ? colors.textPrimary : colors.textMuted}
           />
         </TouchableOpacity>
       </View>
@@ -129,89 +132,90 @@ export function PostCard({ post, onPress, showImage }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-    padding: spacing.lg,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  cardPressed: {
-    opacity: 0.96,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.md,
-  },
-  authorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  authorMeta: {
-    marginLeft: spacing.md,
-    flex: 1,
-  },
-  authorName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  title: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-    lineHeight: 24,
-  },
-  image: {
-    width: '100%',
-    height: 200,
-    borderRadius: radius.md,
-    marginBottom: spacing.md,
-    backgroundColor: colors.border,
-  },
-  body: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
-  },
-  tagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: spacing.md,
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: spacing.xs,
-  },
-  statsLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  statText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  statTextLiked: {
-    color: colors.liked,
-  },
-});
+const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      marginHorizontal: spacing.lg,
+      marginBottom: spacing.md,
+      padding: spacing.lg,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    cardPressed: {
+      opacity: 0.96,
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing.md,
+    },
+    authorRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    authorMeta: {
+      marginLeft: spacing.md,
+      flex: 1,
+    },
+    authorName: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: colors.textPrimary,
+    },
+    title: {
+      fontSize: 17,
+      fontWeight: '700',
+      color: colors.textPrimary,
+      marginBottom: spacing.sm,
+      lineHeight: 24,
+    },
+    image: {
+      width: '100%',
+      height: 200,
+      borderRadius: radius.md,
+      marginBottom: spacing.md,
+      backgroundColor: colors.border,
+    },
+    body: {
+      fontSize: 14,
+      lineHeight: 21,
+      color: colors.textSecondary,
+      marginBottom: spacing.sm,
+    },
+    tagsRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginBottom: spacing.md,
+    },
+    footer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingTop: spacing.xs,
+    },
+    statsLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.lg,
+    },
+    statItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    statText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    statTextLiked: {
+      color: colors.liked,
+    },
+  });
