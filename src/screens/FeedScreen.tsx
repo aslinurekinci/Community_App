@@ -10,7 +10,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CategoryFilters } from '../components/CategoryFilters';
 import { EmptyState } from '../components/EmptyState';
-import { FeedBottomTab } from '../components/FeedBottomTab';
 import { FeedHeader } from '../components/FeedHeader';
 import { LoadingFooter } from '../components/LoadingFooter';
 import { NotificationPanel } from '../components/NotificationPanel';
@@ -18,10 +17,11 @@ import { PostCard } from '../components/PostCard';
 import { SearchBar } from '../components/SearchBar';
 import { getCategoryApiTag } from '../constants/categories';
 import { SEARCH_DEBOUNCE_MS } from '../constants/api';
-import { colors } from '../constants/colors';
-import { spacing } from '../constants/spacing';
+import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../context/NotificationContext';
 import { usePosts } from '../context/PostContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
+import { spacing } from '../constants/spacing';
 import { FeedStackParamList } from '../navigation/types';
 import { EnrichedPost } from '../types';
 import { debounce } from '../utils/debounce';
@@ -35,6 +35,8 @@ type FeedListItem = EnrichedPost & {
 
 export function FeedScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { unreadCount } = useNotifications();
   const {
     posts,
@@ -160,8 +162,8 @@ export function FeedScreen({ navigation }: Props) {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={refreshPosts}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
+            tintColor={colors.textPrimary}
+            colors={[colors.textPrimary]}
           />
         }
         contentContainerStyle={[
@@ -171,8 +173,6 @@ export function FeedScreen({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
       />
 
-      <FeedBottomTab activeTab="home" />
-
       <NotificationPanel
         visible={notificationsVisible}
         onClose={() => setNotificationsVisible(false)}
@@ -181,22 +181,23 @@ export function FeedScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  searchSection: {
-    backgroundColor: colors.card,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.xs,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  listContent: {
-    paddingBottom: spacing.md,
-  },
-  listContentEmpty: {
-    flexGrow: 1,
-  },
-});
+const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    searchSection: {
+      backgroundColor: colors.card,
+      paddingTop: spacing.md,
+      paddingBottom: spacing.xs,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    listContent: {
+      paddingBottom: spacing.md,
+    },
+    listContentEmpty: {
+      flexGrow: 1,
+    },
+  });
