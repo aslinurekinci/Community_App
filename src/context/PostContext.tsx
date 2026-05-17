@@ -12,6 +12,7 @@ import {
   fetchPostCommentsCount,
   fetchPosts,
   fetchPostsByTag,
+  fetchPostsByUser,
   fetchUsersByIds,
   searchPosts,
 } from '../services/postService';
@@ -35,7 +36,7 @@ type PostContextValue = {
   activeTag: string | null;
   likePost: (postId: number) => Promise<void>;
   unlikePost: (postId: number) => Promise<void>;
-  bookmarkPost: (postId: number) => void;
+  bookmarkPost: (postId: number, post?: EnrichedPost) => void;
   isBookmarked: (postId: number) => boolean;
   isLiked: (postId: number) => boolean;
   getLikeCount: (post: EnrichedPost) => number;
@@ -43,6 +44,10 @@ type PostContextValue = {
   loadComments: (postId: number) => Promise<Comment[]>;
   addComment: (postId: number, body: string) => Promise<void>;
   getCachedComments: (postId: number) => Comment[] | undefined;
+  loadUserPosts: (userId: number) => Promise<void>;
+  getBookmarkedPosts: () => EnrichedPost[];
+  getProfileStats: () => { totalLikes: number; bookmarksCount: number };
+  userPostsLoading: boolean;
   resetPosts: () => void;
 };
 
@@ -83,7 +88,11 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
   const [likeCountDelta, setLikeCountDelta] = useState<Record<number, number>>({});
   const [commentCountDelta, setCommentCountDelta] = useState<Record<number, number>>({});
   const [commentCache, setCommentCache] = useState<Record<number, Comment[]>>({});
-  const [userPosts] = useState<EnrichedPost[]>([]);
+  const [userPosts, setUserPosts] = useState<EnrichedPost[]>([]);
+  const [userPostsLoading, setUserPostsLoading] = useState(false);
+  const [bookmarkedPostsMap, setBookmarkedPostsMap] = useState<
+    Record<number, EnrichedPost>
+  >({});
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
@@ -276,20 +285,53 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const bookmarkPost = useCallback(
-    (postId: number) => {
+    (postId: number, post?: EnrichedPost) => {
       setBookmarks(prev => {
         const next = new Set(prev);
         if (next.has(postId)) {
           next.delete(postId);
+          setBookmarkedPostsMap(map => {
+            const updated = { ...map };
+            delete updated[postId];
+            return updated;
+          });
         } else {
           next.add(postId);
           addNotification('bookmark');
+          if (post) {
+            setBookmarkedPostsMap(map => ({ ...map, [postId]: post }));
+          }
         }
         return next;
       });
     },
     [addNotification],
   );
+
+  const loadUserPosts = useCallback(
+    async (userId: number) => {
+      setUserPostsLoading(true);
+      try {
+        const { posts: rawPosts } = await fetchPostsByUser(userId);
+        const enriched = await enrichPosts(rawPosts);
+        setUserPosts(enriched);
+      } catch {
+        setUserPosts([]);
+      } finally {
+        setUserPostsLoading(false);
+      }
+    },
+    [enrichPosts],
+  );
+
+  const getBookmarkedPosts = useCallback((): EnrichedPost[] => {
+    const fromMap = Object.values(bookmarkedPostsMap);
+    const ids = new Set(fromMap.map(p => p.id));
+    const fromLists = [...posts, ...userPosts].filter(
+      p => bookmarks.has(p.id) && !ids.has(p.id),
+    );
+    return [...fromMap, ...fromLists];
+  }, [bookmarkedPostsMap, posts, userPosts, bookmarks]);
 
   const isBookmarked = useCallback(
     (postId: number) => bookmarks.has(postId),
@@ -308,6 +350,17 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
     },
     [likeCountDelta],
   );
+
+  const getProfileStats = useCallback(() => {
+    const totalLikes = userPosts.reduce(
+      (sum, post) => sum + getLikeCount(post),
+      0,
+    );
+    return {
+      totalLikes,
+      bookmarksCount: bookmarks.size,
+    };
+  }, [userPosts, bookmarks, getLikeCount]);
 
   const getCommentCount = useCallback(
     (post: EnrichedPost) => {
@@ -398,6 +451,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
     setLikeCountDelta({});
     setCommentCountDelta({});
     setCommentCache({});
+    setUserPosts([]);
+    setBookmarkedPostsMap({});
     skipRef.current = 0;
     setIsSearchMode(false);
     searchQueryRef.current = '';
@@ -431,6 +486,10 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
       loadComments,
       addComment,
       getCachedComments,
+      loadUserPosts,
+      getBookmarkedPosts,
+      getProfileStats,
+      userPostsLoading,
       resetPosts,
     }),
     [
@@ -458,6 +517,10 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
       loadComments,
       addComment,
       getCachedComments,
+      loadUserPosts,
+      getBookmarkedPosts,
+      getProfileStats,
+      userPostsLoading,
       resetPosts,
     ],
   );
