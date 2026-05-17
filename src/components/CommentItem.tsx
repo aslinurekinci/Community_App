@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors } from '../constants/colors';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 import { radius, spacing } from '../constants/spacing';
 import { Comment } from '../types';
 import { AvatarChip } from './AvatarChip';
@@ -19,6 +20,8 @@ function getInitials(fullName: string): string {
 }
 
 export function CommentItem({ comment, onAuthorPress }: Props) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={styles.row}>
       <AvatarChip initials={getInitials(comment.user.fullName)} size={40} />
@@ -36,30 +39,31 @@ export function CommentItem({ comment, onAuthorPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: spacing.lg,
-  },
-  content: {
-    flex: 1,
-    marginLeft: spacing.md,
-  },
-  authorName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: spacing.xs,
-  },
-  bubble: {
-    backgroundColor: colors.commentBubble,
-    borderRadius: radius.md,
-    padding: spacing.md,
-  },
-  body: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: colors.textPrimary,
-  },
-});
+const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+  StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginBottom: spacing.lg,
+    },
+    content: {
+      flex: 1,
+      marginLeft: spacing.md,
+    },
+    authorName: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: colors.textPrimary,
+      marginBottom: spacing.xs,
+    },
+    bubble: {
+      backgroundColor: colors.commentBubble,
+      borderRadius: radius.md,
+      padding: spacing.md,
+    },
+    body: {
+      fontSize: 14,
+      lineHeight: 21,
+      color: colors.textPrimary,
+    },
+  });
