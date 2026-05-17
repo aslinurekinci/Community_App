@@ -7,7 +7,8 @@ import {
   View,
 } from 'react-native';
 import { FEED_CATEGORIES } from '../constants/categories';
-import { colors } from '../constants/colors';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 import { radius, spacing } from '../constants/spacing';
 
 type Props = {
@@ -16,6 +17,8 @@ type Props = {
 };
 
 export function CategoryFilters({ activeId, onSelect }: Props) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <ScrollView
       horizontal
@@ -41,32 +44,33 @@ export function CategoryFilters({ activeId, onSelect }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  scroll: {
-    marginBottom: spacing.md,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    gap: spacing.sm,
-  },
-  pill: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    backgroundColor: colors.filterInactiveBg,
-  },
-  pillActive: {
-    backgroundColor: colors.primary,
-  },
-  pillText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.filterInactiveText,
-  },
-  pillTextActive: {
-    color: colors.card,
-  },
-  trailingSpace: {
-    width: spacing.sm,
-  },
-});
+const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+  StyleSheet.create({
+    scroll: {
+      marginBottom: spacing.md,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.lg,
+      gap: spacing.sm,
+    },
+    pill: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.pill,
+      backgroundColor: colors.filterInactiveBg,
+    },
+    pillActive: {
+      backgroundColor: colors.textPrimary,
+    },
+    pillText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.filterInactiveText,
+    },
+    pillTextActive: {
+      color: colors.card,
+    },
+    trailingSpace: {
+      width: spacing.sm,
+    },
+  });
