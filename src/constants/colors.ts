@@ -24,4 +24,9 @@ export const colors = {
   commentBubble: '#F3F4F6',
   inputBg: '#F3F4F6',
   verified: '#1A56DB',
+  primarySoft: '#EFF6FF',
+  primaryMuted: '#DBEAFE',
+  iconButtonBg: '#F3F4F6',
+  iconButtonBorder: '#E5E7EB',
+  dangerSoft: '#FEF2F2',
 } as const;
