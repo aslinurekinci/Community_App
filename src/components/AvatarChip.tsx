@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { colors } from '../constants/colors';
-import { radius } from '../constants/spacing';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 type Props = {
   imageUri?: string;
@@ -10,6 +10,8 @@ type Props = {
 };
 
 export function AvatarChip({ imageUri, initials, size = 44 }: Props) {
+  const styles = useThemedStyles(createStyles);
+
   if (imageUri) {
     return (
       <Image
@@ -30,17 +32,18 @@ export function AvatarChip({ imageUri, initials, size = 44 }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  image: {
-    backgroundColor: colors.border,
-  },
-  placeholder: {
-    backgroundColor: colors.avatarPlaceholder,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  initials: {
-    color: colors.avatarPlaceholderText,
-    fontWeight: '700',
-  },
-});
+const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+  StyleSheet.create({
+    image: {
+      backgroundColor: colors.border,
+    },
+    placeholder: {
+      backgroundColor: colors.avatarPlaceholder,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    initials: {
+      color: colors.avatarPlaceholderText,
+      fontWeight: '700',
+    },
+  });
