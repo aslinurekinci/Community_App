@@ -56,3 +56,10 @@ export async function fetchUsersByIds(
   const users = await Promise.all(uniqueIds.map(id => fetchUser(id)));
   return new Map(users.map(user => [user.id, user]));
 }
+
+export async function fetchPostsByUser(
+  userId: number,
+  limit = POSTS_PAGE_SIZE,
+): Promise<PostsResponse> {
+  return apiRequest<PostsResponse>(`/posts/user/${userId}?limit=${limit}`);
+}
